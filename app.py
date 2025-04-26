@@ -71,6 +71,9 @@ def load_song_data(file_path):
              st.warning("Playlist column not found, cannot process or filter by playlist.")
              df['Playlist'] = None # Ensure column exists if missing entirely
 
+        #Filter out only songs from the specific game
+        df = df[df["Playlist"] == "guitar hero 3"]
+
         return df
 
     except FileNotFoundError:
@@ -106,20 +109,6 @@ if df_songs is not None and not df_songs.empty:
 
     with col1:
         search_name = st.text_input("Filter by Song Name", key="search_name")
-        # --- Playlist Filter ---
-        # Check if Playlist column exists and has unique values before creating selectbox
-        if 'Playlist' in df_songs.columns and df_songs['Playlist'].notna().any():
-             playlist_options = df_songs["Playlist"].dropna().unique()
-             sorted_playlist_options = sorted(playlist_options)
-             options_with_all = ["-- All Playlists --"] + sorted_playlist_options
-             selected_playlist = st.selectbox(
-                 "Filter by Playlist:",
-                 options=options_with_all,
-                 key="select_playlist"
-             )
-        else:
-             selected_playlist = "-- All Playlists --" # Default if no playlist data
-             st.info("Playlist data not available for filtering.")
 
     with col2:
         search_artist = st.text_input("Filter by Artist", key="search_artist")
@@ -144,15 +133,6 @@ if df_songs is not None and not df_songs.empty:
             filtered_df = filtered_df[filtered_df['Artist'].astype(str).str.contains(search_artist, case=False, na=False)]
         else:
             st.warning("Cannot filter by Artist: 'Artist' column missing.")
-
-
-    # Apply playlist filter only if a specific playlist (not "All") is chosen
-    if selected_playlist != "-- All Playlists --":
-         # Check if 'Playlist' column exists
-        if 'Playlist' in filtered_df.columns:
-            # Ensure comparison works even if column has mixed types temporarily
-            filtered_df = filtered_df[filtered_df["Playlist"].astype(str) == str(selected_playlist)]
-        # No warning needed here as unavailability is handled where selectbox is created
 
 
     # --- Prepare Data for Display ---
