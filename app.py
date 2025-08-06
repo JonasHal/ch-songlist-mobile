@@ -124,6 +124,23 @@ if df_songs is not None and not df_songs.empty:
     with col2:
         search_artist = st.text_input("Filter by Artist", key="search_artist")
 
+        # filter by song length
+        if "songlength" in df_songs.columns and not df_songs['songlength'].isnull().all():
+            min_length = df_songs['songlength'].min() / 1000
+            max_length = df_songs['songlength'].max() / 1000
+            min_length = math.floor(min_length)
+            max_length = math.ceil(max_length)
+            length_range = st.slider(
+                "Filter by Song Length (seconds):",
+                min_value=min_length,
+                max_value=max_length,
+                value=(min_length, 300),
+                step=1, # Step in minutes
+                key="length_range"
+            )
+        else:
+            length_range = (0, 0)
+            st.info("Song length data not available for filtering.")
 
     st.divider() # Visual separator
 
@@ -154,6 +171,13 @@ if df_songs is not None and not df_songs.empty:
             filtered_df = filtered_df[filtered_df["Playlist"].astype(str) == str(selected_playlist)]
         # No warning needed here as unavailability is handled where selectbox is created
 
+    # Apply song length filter if 'songlength' column exists
+    if 'songlength' in filtered_df.columns:
+        # Ensure songlength is numeric and filter based on the range
+        filtered_df = filtered_df[
+            (filtered_df['songlength'] >= length_range[0] * 1000 ) & 
+            (filtered_df['songlength'] <= length_range[1] * 1000  )
+        ]
 
     # --- Prepare Data for Display ---
     if not filtered_df.empty:
