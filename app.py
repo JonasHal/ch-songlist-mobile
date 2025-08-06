@@ -134,7 +134,7 @@ if df_songs is not None and not df_songs.empty:
                 "Filter by Song Length (seconds):",
                 min_value=min_length,
                 max_value=max_length,
-                value=(min_length, 300),
+                value=(min_length, 240),
                 step=1, # Step in minutes
                 key="length_range"
             )
